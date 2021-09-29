@@ -79,7 +79,7 @@ def getIMGFiles(path):
 
 def main():
     with open("EX_DATA.txt","w") as fileData:
-        write("Info for APK: {0}", path)
+        fileData.write("Info for APK: {0}")
 
     getFiles(path)
     getIMGFiles(path)
@@ -91,16 +91,20 @@ def main():
         extractor.runRegEX2('IP',r'[0-9]+(?:\.[0-9]+){3}')
         extractor.runRegEX2('IPS',r'[0-9]+(?:\.[0-9]+){3}:[0-9]+')
         extractor.interes_files()
+	
+    try:
+        with open("EX_DATA.txt","a") as fileData:
+            for isl in imgsourcesList:
+                img = Image.open(isl)
+                img_exif = img.getexif()
+                if img_exif != None:
+                    img_exif_dict = dict(img_exif)
+                    for key, val in img_exif_dict.items():
+                        if key in ExifTags.TAGS:
+                            fileData.write('IMG {0} {1}:{2}\n'.format(isl, ExifTags.TAGS[key], repr(val)))
+    except:
+        pass
 
-    with open("EX_DATA.txt","a") as fileData:
-        for isl in imgsourcesList:
-            img = Image.open(isl)
-            img_exif = img.getexif()
-            if img_exif != None:
-                img_exif_dict = dict(img_exif)
-                for key, val in img_exif_dict.items():
-                    if key in ExifTags.TAGS:
-                        fileData.write('IMG {0} {1}:{2}\n'.format(isl, ExifTags.TAGS[key], repr(val)))
 
     print("[+] Sources list successfully generated !")
 
